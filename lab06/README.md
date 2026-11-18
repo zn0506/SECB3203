@@ -1,10 +1,10 @@
 # SECB3203 Lab 6 - Files and exceptions: bio_io.py and batch.py
 
-Student: <name, matric no>
+Student: Wong Zi Ning, A24CS0313
 
 ## Setup
     python -m venv .venv
-    source .venv/bin/activate        # Windows: ..\.venv\Scripts\Activate.ps1
+    source .venv/bin/activate        # Windows: .\.venv\Scripts\Activate.ps1
     pip install -r requirements.txt
 
 ## Run
@@ -21,4 +21,8 @@ Student: <name, matric no>
 - `AI_USE_LOG.md` : my AI prompt log (or nil return)
 
 ## Exit codes of batch.py
-<Write what exit codes 0, 1 and 2 mean, in your own words.>
+Exit code 0: All FASTA files were processed successfully, and none of them were rejected.
+
+Exit code 1: The program completed processing, but some FASTA files were rejected due to errors or invalid formats.
+
+Exit code 2: The program could not start processing because the input directory was missing or invalid.
