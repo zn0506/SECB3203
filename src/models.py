@@ -39,13 +39,16 @@ class DNASequence:
         return len(self._sequence)
 
     def __repr__(self) -> str:
-        raise NotImplementedError("TODO: implement __repr__")
+        return f"DNASequence(name={self._name!r}, sequence={self._sequence!r})"
 
     def __eq__(self, other: object) -> bool:
-        raise NotImplementedError("TODO: implement __eq__")
+        if not isinstance(other, DNASequence):
+            return False
+
+        return self._name == other._name and self._sequence == other._sequence
 
     def __hash__(self) -> int:
-        raise NotImplementedError("TODO: implement __hash__")
+        return hash((self._name, self._sequence))
 
 
 class BiologicalSample:
