@@ -1,6 +1,6 @@
 # SECB3203 Lab 7 - Object-oriented programming
 
-Student: <name, matric no>
+Student: WONG ZI NING, A24CS0313
 
 ## Setup
     python -m venv .venv
