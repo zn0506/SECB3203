@@ -1,4 +1,5 @@
 """Week 7 - classes for biological sequences and samples."""
+
 from sequence_utils import find_motif, gc_content, is_valid_dna, reverse_complement
 
 
@@ -15,27 +16,27 @@ class DNASequence:
     @classmethod
     def from_fasta_record(cls, record_id: str, sequence: str) -> "DNASequence":
         """Build an object from a (record_id, sequence) pair such as read_fasta yields."""
-        raise NotImplementedError("TODO: implement from_fasta_record")
+        return cls(record_id, sequence)
 
     @property
     def name(self) -> str:
         return self._name
-    
+
     @property
     def sequence(self) -> str:
         return self._sequence
-    
+
     def gc_content(self) -> float:
-        raise NotImplementedError("TODO: implement gc_content")
+        return gc_content(self._sequence)
 
     def reverse_complement(self) -> "DNASequence":
-        raise NotImplementedError("TODO: implement reverse_complement")
+        return DNASequence(self._name + "rc", reverse_complement(self._sequence))
 
     def find_motif(self, motif: str) -> list[int]:
-        raise NotImplementedError("TODO: implement find_motif")
+        return find_motif(self._sequence, motif)
 
     def __len__(self) -> int:
-        raise NotImplementedError("TODO: implement __len__")
+        return len(self._sequence)
 
     def __repr__(self) -> str:
         raise NotImplementedError("TODO: implement __repr__")
