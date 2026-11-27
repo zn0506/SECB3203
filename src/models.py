@@ -55,38 +55,60 @@ class BiologicalSample:
     """Sample metadata plus a validated sequence and analysis results (composition)."""
 
     def __init__(self, sample_id: str, group: str, dna: DNASequence):
-        raise NotImplementedError("TODO: implement __init__")
+        if not isinstance(dna, DNASequence):
+            raise TypeError("dna must be a DNASequence")
+
+        self.sample_id = sample_id
+        self.group = group
+        self.dna = dna
+        self._results = {}
 
     def add_result(self, name: str, value) -> None:
-        raise NotImplementedError("TODO: implement add_result")
+        self._results[name] = value
 
     @property
     def results(self) -> dict:
         """A copy, so callers cannot change the stored results by accident."""
-        raise NotImplementedError("TODO: implement results")
+        return self._results.copy()
 
     def to_dict(self) -> dict:
-        raise NotImplementedError("TODO: implement to_dict")
+        return {
+            "sample_id": self.sample_id,
+            "group": self.group,
+            "length": len(self.dna),
+            "gc_percent": round(self.dna.gc_content(), 2),
+            **self._results,
+        }
 
 
 class SampleCollection:
     """An ordered collection of samples with unique ids."""
 
     def __init__(self):
-        raise NotImplementedError("TODO: implement __init__")
+        self._samples = []
 
     def add(self, sample: BiologicalSample) -> None:
-        raise NotImplementedError("TODO: implement add")
+        for existing in self._samples:
+            if existing.sample_id == sample.sample_id:
+                raise ValueError(f"duplicate sample id: {sample.sample_id}")
+
+        self._samples.append(sample)
 
     def __len__(self) -> int:
-        raise NotImplementedError("TODO: implement __len__")
+        return len(self._samples)
 
     def __iter__(self):
-        raise NotImplementedError("TODO: implement __iter__")
+        return iter(self._samples)
 
     def by_group(self, group: str) -> list[BiologicalSample]:
-        raise NotImplementedError("TODO: implement by_group")
+        return [sample for sample in self._samples if sample.group == group]
 
     def summary(self) -> dict[str, int]:
         """Number of samples per group, sorted by group name."""
-        raise NotImplementedError("TODO: implement summary")
+        counts = {}
+
+        for sample in self._samples:
+            group = sample.group
+            counts[group] = counts.get(group, 0) + 1
+
+        return dict(sorted(counts.items()))
