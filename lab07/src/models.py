@@ -1,0 +1,114 @@
+"""Week 7 - classes for biological sequences and samples."""
+
+from sequence_utils import find_motif, gc_content, is_valid_dna, reverse_complement
+
+
+class DNASequence:
+    """A validated, read-only DNA sequence with a name."""
+
+    def __init__(self, name: str, sequence: str):
+        if not is_valid_dna(sequence):
+            raise ValueError(f"Invalid DNA sequence for {name!r}")
+
+        self._name = name
+        self._sequence = sequence.upper()
+
+    @classmethod
+    def from_fasta_record(cls, record_id: str, sequence: str) -> "DNASequence":
+        """Build an object from a (record_id, sequence) pair such as read_fasta yields."""
+        return cls(record_id, sequence)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def sequence(self) -> str:
+        return self._sequence
+
+    def gc_content(self) -> float:
+        return gc_content(self._sequence)
+
+    def reverse_complement(self) -> "DNASequence":
+        return DNASequence(self._name + "rc", reverse_complement(self._sequence))
+
+    def find_motif(self, motif: str) -> list[int]:
+        return find_motif(self._sequence, motif)
+
+    def __len__(self) -> int:
+        return len(self._sequence)
+
+    def __repr__(self) -> str:
+        return f"DNASequence(name={self._name!r}, sequence={self._sequence!r})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, DNASequence):
+            return False
+
+        return self._name == other._name and self._sequence == other._sequence
+
+    def __hash__(self) -> int:
+        return hash((self._name, self._sequence))
+
+
+class BiologicalSample:
+    """Sample metadata plus a validated sequence and analysis results (composition)."""
+
+    def __init__(self, sample_id: str, group: str, dna: DNASequence):
+        if not isinstance(dna, DNASequence):
+            raise TypeError("dna must be a DNASequence")
+
+        self.sample_id = sample_id
+        self.group = group
+        self.dna = dna
+        self._results = {}
+
+    def add_result(self, name: str, value) -> None:
+        self._results[name] = value
+
+    @property
+    def results(self) -> dict:
+        """A copy, so callers cannot change the stored results by accident."""
+        return self._results.copy()
+
+    def to_dict(self) -> dict:
+        return {
+            "sample_id": self.sample_id,
+            "group": self.group,
+            "length": len(self.dna),
+            "gc_percent": round(self.dna.gc_content(), 2),
+            **self._results,
+        }
+
+
+class SampleCollection:
+    """An ordered collection of samples with unique ids."""
+
+    def __init__(self):
+        self._samples = []
+
+    def add(self, sample: BiologicalSample) -> None:
+        for existing in self._samples:
+            if existing.sample_id == sample.sample_id:
+                raise ValueError(f"duplicate sample id: {sample.sample_id}")
+
+        self._samples.append(sample)
+
+    def __len__(self) -> int:
+        return len(self._samples)
+
+    def __iter__(self):
+        return iter(self._samples)
+
+    def by_group(self, group: str) -> list[BiologicalSample]:
+        return [sample for sample in self._samples if sample.group == group]
+
+    def summary(self) -> dict[str, int]:
+        """Number of samples per group, sorted by group name."""
+        counts = {}
+
+        for sample in self._samples:
+            group = sample.group
+            counts[group] = counts.get(group, 0) + 1
+
+        return dict(sorted(counts.items()))
